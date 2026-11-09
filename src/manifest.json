@@ -1,0 +1,12 @@
+{
+	"manifest_version": 1,
+	"id": "com.arturkowynia.joplin-ai-assistant",
+	"name": "Joplin AI Assistant",
+	"version": "1.0.0",
+	"app_min_version": "2.8",
+	"description": "Powerful, privacy-focused AI assistant for Joplin notes.",
+	"author": "Artur Kowynia",
+	"homepage_url": "https://github.com/akowynia/joplin-ai-assistant",
+	"repository_url": "https://github.com/akowynia/joplin-ai-assistant",
+	"keywords": ["ai", "assistant", "ollama", "grammar", "markdown"]
+}

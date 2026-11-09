@@ -1,0 +1,16 @@
+node_modules/
+dist/
+publish/
+temp_jpl/
+*.jpl
+*.log
+.DS_Store
+
+# Implementation notes
+implementacje/
+
+# Environment and secrets
+.env
+.env.*
+*.env
+

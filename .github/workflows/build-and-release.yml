@@ -1,0 +1,85 @@
+name: Build and Release Joplin Plugin
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build plugin (.jpl)
+        run: npm run dist
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: joplin-plugin-ai-assistant
+          path: publish/*.jpl
+          if-no-files-found: error
+
+  release:
+    name: Release Plugin
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build plugin (.jpl)
+        run: npm run dist
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/*.jpl
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+      - name: Publish to npm (Official Joplin Plugin Repository)
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            npm publish --access public
+          else
+            echo "::warning ::NPM_TOKEN is not set or empty. Skipping npm publish."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
